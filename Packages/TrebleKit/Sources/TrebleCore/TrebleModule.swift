@@ -48,6 +48,10 @@ public protocol TrebleModule: AnyObject {
     var menuBarPopover: AnyView? { get }
     /// The feature's page in Settings.
     var settingsView: AnyView? { get }
+
+    /// A click on the feature's own menu bar item. Return true if handled;
+    /// otherwise Treble does the default (left-click opens the popover).
+    func handleMenuBarClick(_ click: MenuBarClick) -> Bool
 }
 
 public extension TrebleModule {
@@ -59,4 +63,5 @@ public extension TrebleModule {
     var tile: AnyView? { nil }
     var menuBarPopover: AnyView? { nil }
     var settingsView: AnyView? { nil }
+    func handleMenuBarClick(_ click: MenuBarClick) -> Bool { false }
 }

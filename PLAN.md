@@ -307,6 +307,8 @@ Each spec lists **behavior**, then **nuances** (the small things that make it fe
 - **Slot:** the popover has an accessory spot where other features (Sleep Timer) can add buttons.
 - **Optional:** a subtle tint from the album art's average color in the popover background. It's computed once per track, so it's cheap.
 
+> **As built (Phase 1):** `MediaService` uses Spotify's and Apple Music's own broadcasts plus AppleScript, not MediaRemote. See §7, Phase 1 item 2. The text below is the original design, kept for the later MediaRemote adapter.
+
 **How it works:** everything goes through `MediaService`, the **only** code that touches Apple's private `MediaRemote` framework. It's loaded at runtime, and if any function is missing the feature becomes `unavailable` instead of crashing. Internally it's a `NowPlayingProvider` protocol, so the second provider for macOS 15.4+ (the separate-process bridge) is built in Phase 1 alongside it, without touching the feature. On 15.4+ the direct provider is blocked by Apple, so the bridge is what most users (including the main development Mac) will actually run.
 
 ---
@@ -393,7 +395,7 @@ Each spec lists **behavior**, then **nuances** (the small things that make it fe
 - All text in a String Catalog from day one (cheap now, enables translations later).
 
 ### 6.6 Privacy and updates
-- No telemetry. No network except the Sparkle update check (opt-in on first launch, signed updates).
+- No telemetry. No network except the Sparkle update check (opt-in on first launch, signed updates) and, while Now Playing shows a Spotify song, fetching that song's cover from Spotify (no cookies, no disk cache).
 - Settings stored locally in UserDefaults. Export/import settings in Phase 2.
 
 ---
@@ -432,7 +434,14 @@ Original steps:
    - Core gained `own(_:)` (features hand Core their timers and observers to cancel on teardown), `TrebleTimer`, `trebleObserve`, and `TrebleNotifications` (asks for notification permission only when first needed).
    - System observers (wake, clock change, power, app quit) run only while a session is active. The menu bar countdown ticks once a minute, only if shown.
    - Features added in an update start **off** for existing users. A "New features" prompt is a later nicety.
-2. **Now Playing** + `MediaService`: the macOS 15.4+ media bridge first (needed on the main development Mac), then the direct provider for 14–15.3, then ticker → popover → tile
+2. ✅ **Now Playing** + `MediaService` (built 2026-11-08). **Changed approach:** instead of the private MediaRemote API (blocked on 15.4+) and a separate-process bridge, it listens to the broadcasts Spotify and Apple Music send on every track change, play and pause.
+   - Showing the song needs **no permission** and no polling, and works on every macOS version. Verified live with Spotify 1.3.6 on macOS 15.7.
+   - Controls, exact position and sharper artwork use AppleScript, which asks once per app ("Allow Treble to control Spotify?"), only when a control is first used. Scripts never launch an app and time out after 2 s.
+   - Spotify artwork without that permission comes from Spotify's public oEmbed endpoint (300 px). With it, AppleScript gives the 640 px cover. Downsampled to 600 px, held in memory only.
+   - Music doesn't broadcast position, so it's extrapolated from play/pause times (and re-read when the popover opens, if allowed).
+   - Two apps with tracks loaded: the one that most recently started playing wins.
+   - Core gained `MenuBarLabel.maxWidth / isDimmed / isHidden / toolTip` and `handleMenuBarClick(.middle)`.
+   - **Not covered:** browsers (YouTube, etc.) and other players. That needs the MediaRemote adapter, now a later item (§8).
 3. **Sleep Timer** + `AudioService`: the ending sequence, then the nuances, then the Now Playing slot button
 4. **Scroll**: event tap, then permissions flow, then tile
 5. Performance pass against §4. Manual test checklists in `TESTING.md`.
@@ -452,6 +461,7 @@ Original steps:
 - Per-app volume (macOS 14.2+)
 - Menu bar icon hiding (notch-safe)
 - Desktop now-playing widget
+- MediaRemote adapter for browsers and other players (macOS 15.4+ needs the separate-process workaround)
 - Clipboard history, copy text from screen, Cmd-Tab previews
 
 ---

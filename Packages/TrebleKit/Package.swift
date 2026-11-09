@@ -20,9 +20,11 @@ let package = Package(
         .library(name: "TrebleShell", targets: ["TrebleShell"]),
         // Services
         .library(name: "PowerService", targets: ["PowerService"]),
+        .library(name: "MediaService", targets: ["MediaService"]),
         // Modules
         .library(name: "SampleModule", targets: ["SampleModule"]),
         .library(name: "KeepAwake", targets: ["KeepAwake"]),
+        .library(name: "NowPlaying", targets: ["NowPlaying"]),
     ],
     targets: [
         // Core: the module contract and the shared parts every feature uses.
@@ -33,10 +35,12 @@ let package = Package(
 
         // Services: shared system plumbing, used by several modules.
         .target(name: "PowerService", dependencies: ["TrebleCore"], path: "Sources/Services/PowerService"),
+        .target(name: "MediaService", dependencies: ["TrebleCore"], path: "Sources/Services/MediaService"),
 
         // Modules: one target each, depending only on Core and the Services they list.
         .target(name: "SampleModule", dependencies: ["TrebleCore"], path: "Sources/Modules/SampleModule"),
         .target(name: "KeepAwake", dependencies: ["TrebleCore", "PowerService"], path: "Sources/Modules/KeepAwake"),
+        .target(name: "NowPlaying", dependencies: ["TrebleCore", "MediaService"], path: "Sources/Modules/NowPlaying"),
 
         .testTarget(
             name: "TrebleCoreTests",
@@ -47,6 +51,11 @@ let package = Package(
             name: "KeepAwakeTests",
             dependencies: ["KeepAwake", "PowerService", "TrebleCore"],
             path: "Tests/KeepAwakeTests"
+        ),
+        .testTarget(
+            name: "NowPlayingTests",
+            dependencies: ["NowPlaying", "MediaService", "TrebleCore"],
+            path: "Tests/NowPlayingTests"
         ),
     ]
 )

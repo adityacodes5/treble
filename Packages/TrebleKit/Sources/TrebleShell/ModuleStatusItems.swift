@@ -56,6 +56,8 @@ final class ModuleStatusItems: NSObject {
         item.button?.identifier = NSUserInterfaceItemIdentifier(record.id)
         item.button?.target = self
         item.button?.action = #selector(clicked(_:))
+        item.button?.sendAction(on: [.leftMouseUp, .otherMouseUp])
+        (item.button?.cell as? NSButtonCell)?.lineBreakMode = .byTruncatingTail
 
         let popover = NSPopover()
         popover.behavior = .transient
@@ -81,11 +83,29 @@ final class ModuleStatusItems: NSObject {
         }
         button.title = label.text ?? ""
         button.imagePosition = label.text == nil ? .imageOnly : .imageLeading
-        button.toolTip = record.type.name
+        button.appearsDisabled = label.isDimmed
+        button.toolTip = label.toolTip ?? record.type.name
+
+        // Cap the width so long text truncates instead of crowding other menu bar icons.
+        let natural = button.intrinsicContentSize.width
+        if let maxWidth = label.maxWidth, natural > maxWidth {
+            entry.item.length = maxWidth
+        } else {
+            entry.item.length = NSStatusItem.variableLength
+        }
+
+        entry.item.isVisible = !label.isHidden
+        if label.isHidden {
+            entry.popover.close()
+        }
     }
 
     @objc private func clicked(_ sender: NSStatusBarButton) {
         guard let id = sender.identifier?.rawValue, let entry = entries[id] else { return }
+        if NSApp.currentEvent?.type == .otherMouseUp {
+            _ = registry.record(id: id)?.instance?.handleMenuBarClick(.middle)
+            return
+        }
         if entry.popover.isShown {
             entry.popover.performClose(nil)
         } else {

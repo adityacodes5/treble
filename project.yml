@@ -35,6 +35,8 @@ targets:
         product: SampleModule
       - package: TrebleKit
         product: KeepAwake
+      - package: TrebleKit
+        product: NowPlaying
     info:
       path: App/Info.plist
       properties:
@@ -48,6 +50,13 @@ targets:
         NSHumanReadableCopyright: "Copyright © 2026 Aditya Makhija. MIT License."
         # Keep the pre-Liquid Glass look on macOS 26+ (Apple's temporary opt-out).
         UIDesignRequiresCompatibility: true
+        # Shown in macOS's "Allow Treble to control Spotify?" prompt.
+        NSAppleEventsUsageDescription: "Treble controls music apps (play, pause, skip) when you ask it to, and reads album art from them."
+    entitlements:
+      path: App/Treble.entitlements
+      properties:
+        # Hardened runtime blocks controlling other apps unless this is declared.
+        com.apple.security.automation.apple-events: true
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: io.github.adityacodes5.Treble

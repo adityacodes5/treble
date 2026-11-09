@@ -20,6 +20,7 @@ top -l 7 -s 5 -pid $(pgrep -x Treble) -stats pid,cpu,mem,idlew
 | Date | Build | Features on | Idle CPU | Memory | Wakeups |
 |---|---|---|---|---|---|
 | 2026-11-08 | 0.0.1 (1), Debug | Sample only (or none) | 0.0% | 23 MB | ~1 per 5 s |
+| 2026-11-08 | 0.0.1 (1), Debug | Now Playing, Keep Awake, Sample; Spotify playing, popover closed | ~0.9% | 33 MB | — |
 
 ## Phase 0: app shell
 
@@ -89,3 +90,37 @@ Check what macOS sees with `pmset -g assertions | grep Treble`.
 **Appearance**
 - [ ] Looks right in light and dark mode
 - [ ] Reduce Transparency (Accessibility → Display) gives a solid panel
+
+## Phase 1: Now Playing
+
+Test with Spotify, then with Apple Music. Reset permissions between runs with
+`tccutil reset AppleEvents io.github.adityacodes5.Treble`.
+
+**Showing the song (no permission needed)**
+- [ ] Play in Spotify: "Song — Artist" appears in the menu bar within a second, no prompt
+- [ ] Long titles are cut off with "…" and never push other icons away; hovering shows the full title, artist and album
+- [ ] Next track: the ticker and artwork change; the old cover stays until the new one arrives (no empty flash)
+- [ ] Pause: the ticker greys out. After 5 minutes paused it shrinks to ♪
+- [ ] Quit Spotify: the ticker shows ♪ (or disappears with "Hide when nothing is playing")
+- [ ] Treble started while Spotify was already playing: the song appears (once control is allowed), or on the next play/pause/skip (before)
+
+**Popover**
+- [ ] Click the song: large album art, title, artist, album, progress bar and controls
+- [ ] The progress bar moves once a second and matches Spotify's own
+- [ ] "Open Spotify" brings Spotify to the front
+
+**Controls (permission)**
+- [ ] First press of play/pause shows "Treble wants to control Spotify"; Allow → it works
+- [ ] Middle-click the song toggles play/pause
+- [ ] Dragging the progress bar seeks Spotify
+- [ ] Previous at the start of a song restarts it; the progress bar follows
+- [ ] Don't Allow → controls are greyed out with an "Open System Settings" hint; allowing there makes them work again
+- [ ] Settings → Now Playing → Controls shows the right state for each app
+
+**Both apps**
+- [ ] Spotify paused, start Apple Music: the ticker switches to Music. Pause Music, play Spotify: back to Spotify
+
+**Appearance**
+- [ ] Looks right in light and dark mode
+- [ ] VoiceOver reads Previous / Play / Next
+

@@ -77,6 +77,12 @@ public final class ModuleContext {
         contributions.append(slots.add(AnyView(view()), to: slot, from: moduleID))
     }
 
+    /// Draws whatever other features contributed to a slot. Use it inside your own views:
+    /// for example Now Playing shows `.nowPlayingAccessory` under its controls.
+    public func slotView(_ slot: SlotID) -> AnyView {
+        AnyView(SlotView(slot, registry: slots))
+    }
+
     // MARK: Owned resources
 
     /// Hands Treble something to cancel when the feature is turned off:

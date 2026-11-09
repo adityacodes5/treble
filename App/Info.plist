@@ -26,6 +26,8 @@
 	<string>14.0</string>
 	<key>LSUIElement</key>
 	<true/>
+	<key>NSAppleEventsUsageDescription</key>
+	<string>Treble controls music apps (play, pause, skip) when you ask it to, and reads album art from them.</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>Copyright © 2026 Aditya Makhija. MIT License.</string>
 	<key>UIDesignRequiresCompatibility</key>

@@ -50,9 +50,35 @@ public struct MenuBarLabel: Equatable, Sendable {
     public var symbol: String?
     /// Short text next to the symbol, or nil for symbol only.
     public var text: String?
+    /// The widest the item may get, in points. Longer text is truncated with "…".
+    /// Menu bar space is precious (especially next to the notch), so set this for any text that can grow.
+    public var maxWidth: CGFloat?
+    /// Drawn greyed out, for example while music is paused.
+    public var isDimmed: Bool
+    /// Removed from the menu bar for now (it comes back when this is false again).
+    public var isHidden: Bool
+    /// Shown when hovering, for example the full song title.
+    public var toolTip: String?
 
-    public init(symbol: String? = nil, text: String? = nil) {
+    public init(
+        symbol: String? = nil,
+        text: String? = nil,
+        maxWidth: CGFloat? = nil,
+        isDimmed: Bool = false,
+        isHidden: Bool = false,
+        toolTip: String? = nil
+    ) {
         self.symbol = symbol
         self.text = text
+        self.maxWidth = maxWidth
+        self.isDimmed = isDimmed
+        self.isHidden = isHidden
+        self.toolTip = toolTip
     }
+}
+
+/// A click on a feature's own menu bar item that the feature may handle itself.
+public enum MenuBarClick: Sendable {
+    /// Middle-click (pressing the scroll wheel).
+    case middle
 }
