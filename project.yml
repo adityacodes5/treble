@@ -33,6 +33,8 @@ targets:
         product: TrebleShell
       - package: TrebleKit
         product: SampleModule
+      - package: TrebleKit
+        product: KeepAwake
     info:
       path: App/Info.plist
       properties:

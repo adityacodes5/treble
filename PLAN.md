@@ -427,7 +427,11 @@ Original steps:
 ✅ *Done when:* the app launches to a menu bar icon, you can enable or disable a dummy feature, and idle CPU is ~0%.
 
 ### Phase 1 — Daily drivers *(→ release v0.1)*
-1. **Keep Awake** + `PowerService`. Simplest feature; proves the whole module system end to end.
+1. ✅ **Keep Awake** + `PowerService` (built 2026-11-08). Simplest feature; proved the module system end to end.
+   - Logic lives in a testable `KeepAwakeController` with a fake clock, battery and apps (21 tests), plus a real `pmset` check.
+   - Core gained `own(_:)` (features hand Core their timers and observers to cancel on teardown), `TrebleTimer`, `trebleObserve`, and `TrebleNotifications` (asks for notification permission only when first needed).
+   - System observers (wake, clock change, power, app quit) run only while a session is active. The menu bar countdown ticks once a minute, only if shown.
+   - Features added in an update start **off** for existing users. A "New features" prompt is a later nicety.
 2. **Now Playing** + `MediaService`: the macOS 15.4+ media bridge first (needed on the main development Mac), then the direct provider for 14–15.3, then ticker → popover → tile
 3. **Sleep Timer** + `AudioService`: the ending sequence, then the nuances, then the Now Playing slot button
 4. **Scroll**: event tap, then permissions flow, then tile

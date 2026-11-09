@@ -1,3 +1,4 @@
+import KeepAwake
 import TrebleCore
 
 #if DEBUG
@@ -10,7 +11,9 @@ import SampleModule
 enum FeatureList {
     @MainActor
     static var all: [any TrebleModule.Type] {
-        var modules: [any TrebleModule.Type] = []
+        var modules: [any TrebleModule.Type] = [
+            KeepAwakeModule.self,
+        ]
         #if DEBUG
         modules.append(SampleModule.self)
         #endif

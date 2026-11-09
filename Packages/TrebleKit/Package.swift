@@ -18,8 +18,11 @@ let package = Package(
     products: [
         .library(name: "TrebleCore", targets: ["TrebleCore"]),
         .library(name: "TrebleShell", targets: ["TrebleShell"]),
+        // Services
+        .library(name: "PowerService", targets: ["PowerService"]),
         // Modules
         .library(name: "SampleModule", targets: ["SampleModule"]),
+        .library(name: "KeepAwake", targets: ["KeepAwake"]),
     ],
     targets: [
         // Core: the module contract and the shared parts every feature uses.
@@ -28,13 +31,22 @@ let package = Package(
         // Shell: menu bar, panel, Settings, onboarding. Knows Core, never Modules.
         .target(name: "TrebleShell", dependencies: ["TrebleCore"], path: "Sources/TrebleShell"),
 
-        // Modules: one target each, depending only on Core (and Services, later).
+        // Services: shared system plumbing, used by several modules.
+        .target(name: "PowerService", dependencies: ["TrebleCore"], path: "Sources/Services/PowerService"),
+
+        // Modules: one target each, depending only on Core and the Services they list.
         .target(name: "SampleModule", dependencies: ["TrebleCore"], path: "Sources/Modules/SampleModule"),
+        .target(name: "KeepAwake", dependencies: ["TrebleCore", "PowerService"], path: "Sources/Modules/KeepAwake"),
 
         .testTarget(
             name: "TrebleCoreTests",
             dependencies: ["TrebleCore"],
             path: "Tests/TrebleCoreTests"
+        ),
+        .testTarget(
+            name: "KeepAwakeTests",
+            dependencies: ["KeepAwake", "PowerService", "TrebleCore"],
+            path: "Tests/KeepAwakeTests"
         ),
     ]
 )

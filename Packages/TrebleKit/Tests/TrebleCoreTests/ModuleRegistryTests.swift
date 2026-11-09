@@ -222,6 +222,21 @@ struct ModuleRegistryTests {
         #expect(registry.record(id: "unavailable")!.status == .unavailable("Not on this Mac"))
     }
 
+    @Test func ownedResourcesAreCancelledOnTeardown() {
+        let registry = ModuleRegistry(modules: [ProbeModule.self], store: store)
+        registry.setEnabled(true, for: "probe")
+        let context = registry.record(id: "probe")!.context!
+        let timer = context.own(Cancellation {})
+        #expect(!timer.isCancelled)
+
+        registry.setEnabled(false, for: "probe")
+        #expect(timer.isCancelled)
+
+        // Owning something after teardown cancels it immediately.
+        let late = context.own(Cancellation {})
+        #expect(late.isCancelled)
+    }
+
     @Test func lateCallsAfterTeardownAreIgnored() {
         let registry = ModuleRegistry(modules: [ProbeModule.self], store: store)
         registry.setEnabled(true, for: "probe")

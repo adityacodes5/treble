@@ -67,6 +67,15 @@ public final class MyFeature: TrebleModule {
 | `context.subscribe(to:_:)` | Listen for events (like `PanelVisibilityChanged`) |
 | `context.publish(_:)` | Broadcast an event |
 | `context.contribute(to:_:)` | Add UI to a slot (like `.panelFooter`) |
+| `context.own(_:)` | Hand over a timer, observer or service subscription for Treble to cancel when you're turned off |
+
+Helpers in TrebleCore: `TrebleTimer.once(at:tolerance:_:)` and `.repeating(every:tolerance:_:)`, `NotificationCenter.trebleObserve(_:_:)`, `TrebleNotifications.post(title:body:)`.
+
+### Using a Service
+
+Shared system plumbing lives in `Sources/Services/` (for example `PowerService` for keep-awake requests and battery state). Add it to your target's `dependencies` in `Package.swift` and `import` it. Services never know about modules.
+
+For logic worth testing, put it in a controller that takes an environment struct of closures (clock, system calls), like `KeepAwakeController`. Tests then pass fakes. See `Tests/KeepAwakeTests`.
 
 Subscriptions, slot contributions and the menu bar label are **removed automatically** when your feature is turned off. In `stop()`, release only what you created yourself: timers, system observers, power assertions and so on.
 

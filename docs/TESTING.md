@@ -57,6 +57,35 @@ top -l 7 -s 5 -pid $(pgrep -x Treble) -stats pid,cpu,mem,idlew
 - [ ] Granting in System Settings starts the feature without a restart
 - [ ] Revoking it stops the feature and shows the message again
 
+## Phase 1: Keep Awake
+
+Check what macOS sees with `pmset -g assertions | grep Treble`.
+
+**Starting and stopping**
+- [ ] Clicking the cup starts the default duration (1h); the icon fills in
+- [ ] Clicking it again stops; `pmset` no longer lists Treble
+- [ ] Each quick button (15m … 5h, ∞) starts that duration; the chosen one is highlighted
+- [ ] Picking a new duration while one runs replaces it
+- [ ] The status line reads "Until 3:00 PM · 1h left" and counts down while the panel is open
+- [ ] "Until a Time…" with a time earlier than now means tomorrow
+- [ ] `pmset` shows "Treble Keep Awake (until …)" with PreventUserIdleSystemSleep
+
+**Ending on its own**
+- [ ] A 15m session ends by itself; `pmset` drops it
+- [ ] Close the lid during a 15m session, open it after 20m: Keep Awake is off and the Mac doesn't immediately sleep
+- [ ] "While an App Is Running" → pick an app → quit that app: Keep Awake stops and a notification says why
+- [ ] Quitting Treble mid-session: `pmset` drops the assertion immediately
+
+**Battery** (on a laptop)
+- [ ] Unplugged below 20%: starting shows "Battery is below 20%…"
+- [ ] "Only while plugged in" on, then unplug: stops with a notification
+- [ ] Changing a battery setting mid-session applies right away
+
+**Settings**
+- [ ] "Keep the display on too" switches `pmset` to PreventUserIdleDisplaySleep without stopping the session
+- [ ] "Show time left next to the icon" shows "58m" in the menu bar, updating each minute
+- [ ] The lid-closed note is shown
+
 **Appearance**
 - [ ] Looks right in light and dark mode
 - [ ] Reduce Transparency (Accessibility → Display) gives a solid panel

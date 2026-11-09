@@ -3,8 +3,9 @@ import SwiftUI
 /// Everything a feature gets from Treble. Handed to `TrebleModule.init(context:)`.
 ///
 /// Whatever a feature receives through its context (subscriptions, slot
-/// contributions, its menu bar label) is tracked here and removed
-/// automatically when the feature is turned off, even if the feature forgets.
+/// contributions, its menu bar label, and anything it hands to `own(_:)`) is
+/// tracked here and removed automatically when the feature is turned off,
+/// even if the feature forgets.
 @MainActor
 public final class ModuleContext {
     public let moduleID: String
@@ -18,6 +19,7 @@ public final class ModuleContext {
 
     private var subscriptions: [EventBus.Token] = []
     private var contributions: [UUID] = []
+    private var owned: [any TrebleCancellable] = []
     /// False once the feature is turned off. Late calls are then ignored.
     private(set) var isActive = true
 
@@ -75,11 +77,28 @@ public final class ModuleContext {
         contributions.append(slots.add(AnyView(view()), to: slot, from: moduleID))
     }
 
+    // MARK: Owned resources
+
+    /// Hands Treble something to cancel when the feature is turned off:
+    /// a timer, an observer, a service subscription. Returns it, so you can
+    /// also keep it and cancel it yourself earlier.
+    ///
+    ///     wakeObserver = context.own(NSWorkspace.shared.notificationCenter.trebleObserve(...))
+    @discardableResult
+    public func own<C: TrebleCancellable>(_ cancellable: C) -> C {
+        if isActive {
+            owned.append(cancellable)
+        } else {
+            cancellable.cancel()
+        }
+        return cancellable
+    }
+
     // MARK: Teardown
 
     /// Number of things this feature still holds. Zero after teardown.
     var trackedResourceCount: Int {
-        subscriptions.count + contributions.count
+        subscriptions.count + contributions.count + owned.count
     }
 
     /// Called by the registry after `stop()`.
@@ -88,6 +107,8 @@ public final class ModuleContext {
         subscriptions.removeAll()
         contributions.forEach(slots.remove)
         contributions.removeAll()
+        owned.forEach { $0.cancel() }
+        owned.removeAll()
         onMenuBarLabel(nil)
         isActive = false
     }
