@@ -1,0 +1,53 @@
+# XcodeGen spec. Generate the Xcode project with:  xcodegen
+# The .xcodeproj is generated, so it isn't checked into Git.
+name: Treble
+
+options:
+  bundleIdPrefix: io.github.adityacodes5
+  deploymentTarget:
+    macOS: "14.0"
+  createIntermediateGroups: true
+
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    MACOSX_DEPLOYMENT_TARGET: "14.0"
+    ENABLE_HARDENED_RUNTIME: YES
+    DEAD_CODE_STRIPPING: YES
+
+packages:
+  TrebleKit:
+    path: Packages/TrebleKit
+
+targets:
+  Treble:
+    type: application
+    platform: macOS
+    sources:
+      - App
+    configFiles:
+      Debug: Config/Signing.xcconfig
+      Release: Config/Signing.xcconfig
+    dependencies:
+      - package: TrebleKit
+        product: TrebleShell
+      - package: TrebleKit
+        product: SampleModule
+    info:
+      path: App/Info.plist
+      properties:
+        CFBundleDisplayName: Treble
+        CFBundleShortVersionString: "0.0.1"
+        CFBundleVersion: "1"
+        LSApplicationCategoryType: public.app-category.utilities
+        LSMinimumSystemVersion: "14.0"
+        # Menu bar app: no Dock icon, no app menu.
+        LSUIElement: true
+        NSHumanReadableCopyright: "Copyright © 2026 Aditya Makhija. MIT License."
+        # Keep the pre-Liquid Glass look on macOS 26+ (Apple's temporary opt-out).
+        UIDesignRequiresCompatibility: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: io.github.adityacodes5.Treble
+        PRODUCT_NAME: Treble
+        GENERATE_INFOPLIST_FILE: NO

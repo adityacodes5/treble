@@ -1,0 +1,16 @@
+// Shared signing settings, checked into Git.
+//
+// By default the app is signed "to run locally" (ad-hoc), so anyone can build it.
+// Ad-hoc builds lose macOS permissions (like Accessibility) on every rebuild,
+// so for day-to-day work create Config/Local.xcconfig (ignored by Git) with:
+//
+//   DEVELOPMENT_TEAM = <your team ID>
+//   CODE_SIGN_IDENTITY = Apple Development
+//
+// See README.md → "Signing" for how to find your team ID.
+
+CODE_SIGN_STYLE = Automatic
+CODE_SIGN_IDENTITY = -
+DEVELOPMENT_TEAM =
+
+#include? "Local.xcconfig"
